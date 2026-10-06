@@ -9,8 +9,8 @@ vec2 uv2 = vec2(0.0);
 
 if (texture(Sampler0, uv).xyz == vec3(112. / 255., 108. / 255., 138. / 255.)) {
     int vertexId = gl_VertexID % 4;
-    float ratio = ScreenSize.x / ScreenSize.y;
-    float vratio = ScreenSize.y / ScreenSize.x;
+    float ratio = screenAspectRatio();
+    float vratio = 1.0 / ratio;
     if (vratio < ratio) ratio = 1;
     else vratio = 1;
     switch (vertexId) {
@@ -71,8 +71,8 @@ if (texture(Sampler0, uv).xyz == vec3(112. / 255., 108. / 255., 138. / 255.)) {
         sy = float(segmentY) / float(ySegments - 1);
         transition = decodeFixedPoint(40, 0);
         int vertexId = gl_VertexID % 4;
-        float ratio = ScreenSize.x / ScreenSize.y;
-        float vratio = ScreenSize.y / ScreenSize.x;
+        float ratio = screenAspectRatio();
+        float vratio = 1.0 / ratio;
         if (vratio < ratio) ratio = 1;
         else vratio = 1;
         float left = -float(xSegments) * 0.5 * vratio * 0.64;

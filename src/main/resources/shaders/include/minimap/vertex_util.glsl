@@ -24,3 +24,12 @@ int decodeUnsigned(int offsetX, int offsetY) {
 float decodeFixedPoint(int offsetX, int offsetY) {
     return float(decodeUnsigned(offsetX, offsetY)) / 255.0;
 }
+
+// Width / height of the screen. ScreenSize lives in the Globals uniform block since 1.21.6,
+// which the text pipeline doesn't bind, so derive it from the perspective projection instead:
+// its first two rows are the camera rows scaled by f / aspect and f (view bobbing only rotates them).
+float screenAspectRatio() {
+    vec3 row0 = vec3(ProjMat[0][0], ProjMat[1][0], ProjMat[2][0]);
+    vec3 row1 = vec3(ProjMat[0][1], ProjMat[1][1], ProjMat[2][1]);
+    return length(row1) / length(row0);
+}

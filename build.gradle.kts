@@ -1,8 +1,8 @@
 plugins {
     java
-    id("io.papermc.paperweight.userdev").version("2.0.0-beta.8")
-    id("xyz.jpenilla.run-paper").version("2.3.1")
-    id("com.gradleup.shadow").version("9.0.0-beta4")
+    id("io.papermc.paperweight.userdev").version("2.0.0-beta.19")
+    id("xyz.jpenilla.run-paper").version("3.0.2")
+    id("com.gradleup.shadow").version("9.2.2")
 }
 
 group = "com.jnngl"
@@ -23,10 +23,10 @@ repositories {
 }
 
 dependencies {
-    paperweightDevelopmentBundle("io.papermc.paper:dev-bundle:1.21.4-R0.1-SNAPSHOT")
+    paperweightDevelopmentBundle("io.papermc.paper:dev-bundle:1.21.10-R0.1-SNAPSHOT")
     implementation("net.elytrium:serializer:1.1.1")
     implementation("com.jnngl:mapcolor:1.0.1")
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
     compileOnly("org.projectlombok:lombok:1.18.30")
     implementation("com.j256.ormlite:ormlite-jdbc:6.1")
@@ -53,6 +53,18 @@ tasks {
     }
 }
 
+val resourcePack = tasks.register<Zip>("resourcePack") {
+    group = "build"
+    description = "Packages the client-side minimap shaders as a resource pack."
+    archiveFileName.set("VanillaMinimaps-resourcepack-${project.version}.zip")
+    destinationDirectory.set(layout.buildDirectory.dir("distributions"))
+    from("src/main/resourcepack")
+    from("src/main/resources/shaders") {
+        into("assets/minecraft/shaders")
+    }
+}
+
 tasks.named("build") {
     finalizedBy("shadowJar")
+    dependsOn(resourcePack)
 }

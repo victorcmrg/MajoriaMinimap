@@ -19,4 +19,6 @@ jobs:
         uses: actions/upload-artifact@v4.6.0
         with:
           name: VanillaMinimaps
-          path: build/libs/vanillaminimaps*.jar
+          path: |
+            build/libs/vanillaminimaps*.jar
+            build/distributions/VanillaMinimaps-resourcepack-*.zip

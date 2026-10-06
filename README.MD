@@ -10,7 +10,13 @@ https://github.com/JNNGL/VanillaMinimaps/assets/45935949/ea7738c9-bd4a-4388-9d65
 
 https://github.com/JNNGL/VanillaMinimaps/assets/45935949/f64aed82-8193-4c3b-9c8f-be32dc3d6fa0
 
-**Supported server version: 1.21**
+**Supported version: 1.21.10** (Paper server and Java Edition client)
+
+### Resource pack
+
+The minimap is drawn by a core shader, so players need the resource pack. `./gradlew build` produces it at
+`build/distributions/VanillaMinimaps-resourcepack-<version>.zip` (pack format 69, Minecraft 1.21.10 only),
+next to the plugin jar in `build/libs/`.
 
 ### Features
 
@@ -26,7 +32,7 @@ https://github.com/JNNGL/VanillaMinimaps/assets/45935949/f64aed82-8193-4c3b-9c8f
 ### Mods compatibility
 
 - [x] Sodium (without shaders)
-- [x] OptiFine (without shaders)
+- [ ] OptiFine (untested on 1.21.10)
 - [ ] Iris/OptiFine shader packs
 - [ ] MoreCulling
 - [ ] ImmediatelyFast

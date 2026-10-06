@@ -17,6 +17,7 @@
 
 package com.jnngl.vanillaminimaps.injection;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
@@ -26,6 +27,8 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+
+import java.util.Arrays;
 
 public class PassengerRewriter extends ChannelOutboundHandlerAdapter {
 
@@ -37,24 +40,27 @@ public class PassengerRewriter extends ChannelOutboundHandlerAdapter {
       int vehicle = packet.getVehicle();
       IntList passengers = this.passengers.get(vehicle);
       if (passengers != null) {
+        int[] original = packet.getPassengers();
+        int[] merged;
         synchronized (passengers) {
-          FriendlyByteBuf buf = new FriendlyByteBuf(ctx.alloc().ioBuffer());
-          buf.writeVarInt(0x65); // Packet ID
-          buf.writeVarInt(packet.getVehicle()); // Vehicle ID
-          buf.writeVarInt(packet.getPassengers().length + passengers.size()); // Passenger count
-          for (int passenger : packet.getPassengers()) {
-            buf.writeVarInt(passenger);
-          }
-          for (int passenger : passengers) {
-            buf.writeVarInt(passenger);
-          }
-          ctx.write(buf);
-          return;
+          merged = Arrays.copyOf(original, original.length + passengers.size());
+          passengers.getElements(0, merged, original.length, passengers.size());
+        }
+
+        // The packet has no public constructor taking raw ids, so rebuild it through its own codec
+        // instead of hand-writing the packet id, which changes between Minecraft versions.
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        try {
+          buf.writeVarInt(vehicle);
+          buf.writeVarIntArray(merged);
+          msg = ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf);
+        } finally {
+          buf.release();
         }
       }
     }
 
-    ctx.write(msg);
+    ctx.write(msg, promise);
   }
 
   public Int2ObjectMap<IntList> passengers() {
