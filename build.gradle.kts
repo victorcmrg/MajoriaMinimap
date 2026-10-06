@@ -64,7 +64,7 @@ val resourcePack = tasks.register<Zip>("resourcePack") {
     }
 }
 
+// shadowJar is already part of assemble since Shadow 9.
 tasks.named("build") {
-    finalizedBy("shadowJar")
     dependsOn(resourcePack)
 }
