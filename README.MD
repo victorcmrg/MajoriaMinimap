@@ -10,7 +10,7 @@ https://github.com/JNNGL/VanillaMinimaps/assets/45935949/ea7738c9-bd4a-4388-9d65
 
 https://github.com/JNNGL/VanillaMinimaps/assets/45935949/f64aed82-8193-4c3b-9c8f-be32dc3d6fa0
 
-**Supported server version: 1.21**
+**Supported server version: 1.21.10** (Paper)
 
 ### Features
 
@@ -22,6 +22,39 @@ https://github.com/JNNGL/VanillaMinimaps/assets/45935949/f64aed82-8193-4c3b-9c8f
 - Configurable markers
 - Fullscreen map view
 - Configurable blockstate colors
+- Other players shown on the minimap
+
+### Other players on the minimap
+
+Other online players near you are shown on the minimap and follow their movement.
+Settings are under `markers.player-markers` in `config.yml` (radius, max players, hide spectators/invisible/sneaking).
+
+By default they are drawn as a **pink dot**. To use a custom icon, put a PNG named `other_player.png` into
+`plugins/VanillaMinimaps/icons/` (or into `src/main/resources/minimap/` before building). The plugin checks for
+the file every few seconds, so the icon shows up without a restart.
+
+### Resource pack
+
+The shaders in `src/main/resources/shaders` must be shipped to the clients in a resource pack under
+`assets/minecraft/shaders/` (Minecraft 1.21.10, pack format 69):
+
+```
+pack.mcmeta
+assets/minecraft/shaders/core/rendertype_text.vsh
+assets/minecraft/shaders/core/rendertype_text.fsh
+assets/minecraft/shaders/include/minimap/*.glsl
+```
+
+```json
+{
+  "pack": {
+    "description": "Vanilla Minimaps",
+    "pack_format": 69,
+    "min_format": 69,
+    "max_format": 69
+  }
+}
+```
 
 ### Mods compatibility
 

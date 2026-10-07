@@ -1,19 +1,15 @@
 // Vanilla Minimaps
 // https://github.com/JNNGL/VanillaMinimaps
 
-#version 150
+#version 330
 
-#moj_import <fog.glsl>
+#moj_import <minecraft:fog.glsl>
+#moj_import <minecraft:dynamictransforms.glsl>
 
 uniform sampler2D Sampler0;
 
-uniform vec4 ColorModulator;
-uniform float FogStart;
-uniform float FogEnd;
-uniform vec4 FogColor;
-uniform vec2 ScreenSize;
-
-in float vertexDistance;
+in float sphericalVertexDistance;
+in float cylindricalVertexDistance;
 in vec4 vertexColor;
 in vec2 texCoord0;
 in vec2 texCoord1;
@@ -26,14 +22,14 @@ in float sx, sy;
 
 out vec4 fragColor;
 
-#moj_import <minimap/fragment_util.glsl>
+#moj_import <minecraft:minimap/fragment_util.glsl>
 
 void main() {
-    #moj_import <minimap/fragment_main.glsl>
+    #moj_import <minecraft:minimap/fragment_main.glsl>
 
     vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
     if (color.a < 0.1) {
         discard;
     }
-    fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
+    fragColor = apply_fog(color, sphericalVertexDistance, cylindricalVertexDistance, FogEnvironmentalStart, FogEnvironmentalEnd, FogRenderDistanceStart, FogRenderDistanceEnd, FogColor);
 }

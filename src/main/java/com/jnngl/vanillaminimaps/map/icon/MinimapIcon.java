@@ -47,4 +47,25 @@ public record MinimapIcon(String key, byte[] data, int width, int height) {
     byte[] data = matcher.matchImage(image);
     return new MinimapIcon(key, data, image.getWidth(), image.getHeight());
   }
+
+  /**
+   * Creates a round dot icon with a 1px outline.
+   */
+  public static MinimapIcon dot(String key, int diameter, Color fill, Color outline) {
+    BufferedImage image = new BufferedImage(diameter, diameter, BufferedImage.TYPE_INT_ARGB);
+    double center = (diameter - 1) / 2.0;
+    double radius = diameter / 2.0;
+    for (int y = 0; y < diameter; y++) {
+      for (int x = 0; x < diameter; x++) {
+        double distance = Math.hypot(x - center, y - center);
+        if (distance <= radius - 1.0) {
+          image.setRGB(x, y, fill.getRGB());
+        } else if (distance <= radius) {
+          image.setRGB(x, y, outline.getRGB());
+        }
+      }
+    }
+
+    return fromBufferedImage(key, image);
+  }
 }

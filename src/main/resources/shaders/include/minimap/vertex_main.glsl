@@ -9,8 +9,8 @@ vec2 uv2 = vec2(0.0);
 
 if (texture(Sampler0, uv).xyz == vec3(112. / 255., 108. / 255., 138. / 255.)) {
     int vertexId = gl_VertexID % 4;
-    float ratio = ScreenSize.x / ScreenSize.y;
-    float vratio = ScreenSize.y / ScreenSize.x;
+    float ratio = minimap_aspect_ratio();
+    float vratio = 1.0 / ratio;
     if (vratio < ratio) ratio = 1;
     else vratio = 1;
     switch (vertexId) {
@@ -27,7 +27,7 @@ if (texture(Sampler0, uv).xyz == vec3(112. / 255., 108. / 255., 138. / 255.)) {
     float vz = decodeFixedPoint(9, 0);
 
     uv -= vec2(0.5);
-    uv = uv * mat2_rotate_z(mod(yaw + 180, 360) - 180);
+    uv = uv * minimap_rotate_z(mod(yaw + 180, 360) - 180);
     uv += vec2(0.5);
 
     minimap = 1.0;
@@ -49,7 +49,7 @@ if (texture(Sampler0, uv).xyz == vec3(112. / 255., 108. / 255., 138. / 255.)) {
         float rPointZ = decodeFixedPoint(1, 2);
         vec2 rPoint = vec2(rPointZ, rPointX);
         uv -= rPoint;
-        uv = uv * mat2_rotate_z(mod(-yaw + 180, 360) - 180);
+        uv = uv * minimap_rotate_z(mod(-yaw + 180, 360) - 180);
         uv += rPoint;
 
         if (sign(length(texture(Sampler0, vec2(0., texel * 2)).xyz)) == 0) {
@@ -71,8 +71,8 @@ if (texture(Sampler0, uv).xyz == vec3(112. / 255., 108. / 255., 138. / 255.)) {
         sy = float(segmentY) / float(ySegments - 1);
         transition = decodeFixedPoint(40, 0);
         int vertexId = gl_VertexID % 4;
-        float ratio = ScreenSize.x / ScreenSize.y;
-        float vratio = ScreenSize.y / ScreenSize.x;
+        float ratio = minimap_aspect_ratio();
+        float vratio = 1.0 / ratio;
         if (vratio < ratio) ratio = 1;
         else vratio = 1;
         float left = -float(xSegments) * 0.5 * vratio * 0.64;

@@ -66,6 +66,34 @@ public class Config extends YamlSerializable {
 
       public boolean stickToBorder = true;
     }
+
+    @Comment({
+        @CommentValue("Shows other online players on the minimap."),
+        @CommentValue("Uses icons/other_player.png when it exists, otherwise a pink dot is shown.")
+    })
+    public PlayerMarkers playerMarkers = new PlayerMarkers();
+
+    public static class PlayerMarkers {
+
+      public boolean enabled = true;
+
+      public boolean stickToBorder = false;
+
+      @Comment(@CommentValue("Maximum horizontal distance (in blocks) at which other players are tracked"))
+      public int radius = 64;
+
+      @Comment(@CommentValue("Maximum amount of players shown at once (closest players first)"))
+      public int maxPlayers = 20;
+
+      @Comment(@CommentValue("How often (in ticks) other players positions are updated"))
+      public int updateInterval = 2;
+
+      public boolean hideSpectators = true;
+
+      public boolean hideInvisible = true;
+
+      public boolean hideSneaking = false;
+    }
   }
 
   public Fullscreen fullscreen = new Fullscreen();

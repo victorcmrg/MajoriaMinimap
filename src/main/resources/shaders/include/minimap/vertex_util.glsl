@@ -1,4 +1,4 @@
-mat2 mat2_rotate_z(float radians) {
+mat2 minimap_rotate_z(float radians) {
     return mat2(
         cos(radians), -sin(radians),
         sin(radians), cos(radians)
@@ -23,4 +23,10 @@ int decodeUnsigned(int offsetX, int offsetY) {
 
 float decodeFixedPoint(int offsetX, int offsetY) {
     return float(decodeUnsigned(offsetX, offsetY)) / 255.0;
+}
+
+// Screen aspect ratio (width / height), taken from the perspective projection matrix.
+// ScreenSize is no longer available to rendertype_text since 1.21.6.
+float minimap_aspect_ratio() {
+    return ProjMat[1][1] / ProjMat[0][0];
 }

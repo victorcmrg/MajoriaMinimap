@@ -35,6 +35,7 @@ import com.jnngl.vanillaminimaps.map.MinimapProvider;
 import com.jnngl.vanillaminimaps.map.fullscreen.FullscreenMinimap;
 import com.jnngl.vanillaminimaps.map.icon.provider.BuiltinMinimapIconProvider;
 import com.jnngl.vanillaminimaps.map.icon.provider.MinimapIconProvider;
+import com.jnngl.vanillaminimaps.map.marker.PlayerMarkerTracker;
 import com.jnngl.vanillaminimaps.map.renderer.world.WorldMinimapRenderer;
 import com.jnngl.vanillaminimaps.map.renderer.world.cache.CacheableWorldMinimapRenderer;
 import com.jnngl.vanillaminimaps.map.renderer.world.provider.BuiltinMinimapWorldRendererProvider;
@@ -97,6 +98,9 @@ public final class VanillaMinimaps extends JavaPlugin implements MinimapProvider
   @MonotonicNonNull
   private MinimapPlayerDatabase playerDataStorage;
 
+  @MonotonicNonNull
+  private PlayerMarkerTracker playerMarkerTracker;
+
   @Override
   @SneakyThrows
   public void onEnable() {
@@ -134,6 +138,9 @@ public final class VanillaMinimaps extends JavaPlugin implements MinimapProvider
     minimapBlockListener.registerListener(this);
 
     new MinimapCommand(this).register(NMSCommandDispatcherAccessor.vanillaDispatcher());
+
+    playerMarkerTracker = new PlayerMarkerTracker(this);
+    playerMarkerTracker.start();
   }
 
   @Override

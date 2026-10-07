@@ -57,7 +57,7 @@ public class NMSMinimapPacketSender extends AbstractMinimapPacketSender {
   private void spawnItemFrame(ServerPlayerConnection connection, ItemFrame itemFrame, double offsetY) {
     ServerPlayer player = connection.getPlayer();
     itemFrame.setPos(player.getX(), player.getY() + offsetY, player.getZ());
-    connection.send(itemFrame.getAddEntityPacket(new ServerEntity((ServerLevel) itemFrame.level(), itemFrame, 0, false, p -> {}, Set.of())));
+    connection.send(itemFrame.getAddEntityPacket(new ServerEntity((ServerLevel) itemFrame.level(), itemFrame, 0, false, NMSNoopSynchronizer.INSTANCE, Set.of())));
     var metadata = itemFrame.getEntityData().getNonDefaultValues();
     if (metadata != null && !metadata.isEmpty()) {
       connection.send(new ClientboundSetEntityDataPacket(itemFrame.getId(), metadata));

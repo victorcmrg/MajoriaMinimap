@@ -17,6 +17,7 @@
 
 package com.jnngl.vanillaminimaps.injection;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
@@ -27,6 +28,8 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 
+import java.util.Arrays;
+
 public class PassengerRewriter extends ChannelOutboundHandlerAdapter {
 
   private final Int2ObjectMap<IntList> passengers = new Int2ObjectOpenHashMap<>();
@@ -34,27 +37,34 @@ public class PassengerRewriter extends ChannelOutboundHandlerAdapter {
   @Override
   public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
     if (msg instanceof ClientboundSetPassengersPacket packet) {
-      int vehicle = packet.getVehicle();
-      IntList passengers = this.passengers.get(vehicle);
+      IntList passengers = this.passengers.get(packet.getVehicle());
       if (passengers != null) {
-        synchronized (passengers) {
-          FriendlyByteBuf buf = new FriendlyByteBuf(ctx.alloc().ioBuffer());
-          buf.writeVarInt(0x65); // Packet ID
-          buf.writeVarInt(packet.getVehicle()); // Vehicle ID
-          buf.writeVarInt(packet.getPassengers().length + passengers.size()); // Passenger count
-          for (int passenger : packet.getPassengers()) {
-            buf.writeVarInt(passenger);
-          }
-          for (int passenger : passengers) {
-            buf.writeVarInt(passenger);
-          }
-          ctx.write(buf);
-          return;
-        }
+        msg = withExtraPassengers(packet, passengers);
       }
     }
 
-    ctx.write(msg);
+    ctx.write(msg, promise);
+  }
+
+  // Rebuilt through the packet codec instead of writing raw bytes, so the packet id doesn't have to be hardcoded.
+  private static ClientboundSetPassengersPacket withExtraPassengers(ClientboundSetPassengersPacket packet, IntList extra) {
+    int[] original = packet.getPassengers();
+    int[] merged;
+    synchronized (extra) {
+      merged = Arrays.copyOf(original, original.length + extra.size());
+      for (int i = 0; i < extra.size(); i++) {
+        merged[original.length + i] = extra.getInt(i);
+      }
+    }
+
+    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+    try {
+      buf.writeVarInt(packet.getVehicle());
+      buf.writeVarIntArray(merged);
+      return ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf);
+    } finally {
+      buf.release();
+    }
   }
 
   public Int2ObjectMap<IntList> passengers() {

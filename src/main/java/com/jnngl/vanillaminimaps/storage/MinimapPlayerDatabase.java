@@ -132,7 +132,7 @@ public class MinimapPlayerDatabase {
 
     ForeignCollection<DatabaseMarkerModel> markers = playerDao.getEmptyForeignCollection("markers");
     minimap.secondaryLayers().forEach((name, layer) -> {
-      if ("player".equals(name) || "death_point".equals(name)) {
+      if (Minimap.isReservedLayerName(name)) {
         return;
       }
 

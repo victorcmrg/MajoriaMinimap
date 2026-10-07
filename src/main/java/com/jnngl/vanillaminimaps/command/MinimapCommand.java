@@ -213,7 +213,7 @@ public class MinimapCommand extends BrigadierCommand {
     }
 
     minimap.secondaryLayers().forEach((name, value) -> {
-      if ("player".equals(name) || "death_point".equals(name)) {
+      if (Minimap.isReservedLayerName(name)) {
         return;
       }
 
@@ -255,7 +255,7 @@ public class MinimapCommand extends BrigadierCommand {
       return false;
     }
 
-    if ("player".equals(markerName) || "death_point".equals(markerName)) {
+    if (Minimap.isReservedLayerName(markerName)) {
       source.sendFailure(Component.literal(player.getName() + ": This marker cannot be modified"));
       return false;
     }
@@ -302,6 +302,10 @@ public class MinimapCommand extends BrigadierCommand {
     String markerName = StringArgumentType.getString(ctx, "name");
     String newMarkerName = StringArgumentType.getString(ctx, "new_name");
 
+    if (Minimap.isReservedLayerName(newMarkerName)) {
+      throw new CommandSyntaxException(new CommandExceptionType() {}, () -> "This marker name is unavailable");
+    }
+
     int affected = 0;
 
     for (ServerPlayer serverPlayer : targets) {
@@ -333,7 +337,7 @@ public class MinimapCommand extends BrigadierCommand {
         continue;
       }
 
-      if ("player".equals(markerName) || "death_point".equals(markerName)) {
+      if (Minimap.isReservedLayerName(markerName)) {
         ctx.getSource().sendFailure(Component.literal(player.getName() + ": This marker cannot be removed"));
         continue;
       }
@@ -375,7 +379,7 @@ public class MinimapCommand extends BrigadierCommand {
 
       MinimapIcon icon = minimapIcon(iconName);
 
-      if ("player".equals(markerName) || "death_point".equals(markerName)) {
+      if (Minimap.isReservedLayerName(markerName)) {
         ctx.getSource().sendFailure(Component.literal(player.getName() + ": This marker name is unavailable"));
         continue;
       }
@@ -386,8 +390,7 @@ public class MinimapCommand extends BrigadierCommand {
       }
 
       int markers = (int) minimap.secondaryLayers().entrySet().stream()
-              .filter(entry -> !"player".equals(entry.getKey())
-                      && !"death_point".equals(entry.getKey())
+              .filter(entry -> !Minimap.isReservedLayerName(entry.getKey())
                       && entry.getValue() instanceof MarkerMinimapLayer)
               .count();
 

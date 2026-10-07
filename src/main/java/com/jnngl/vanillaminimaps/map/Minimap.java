@@ -23,6 +23,7 @@ import com.jnngl.vanillaminimaps.map.icon.MinimapIcon;
 import com.jnngl.vanillaminimaps.map.marker.MarkerMinimapLayer;
 import com.jnngl.vanillaminimaps.map.renderer.MinimapIconRenderer;
 import com.jnngl.vanillaminimaps.map.renderer.MinimapLayerRenderer;
+import com.jnngl.vanillaminimaps.map.renderer.SecondaryMinimapLayerRenderer;
 import com.jnngl.vanillaminimaps.map.renderer.encoder.PrimaryMapEncoder;
 import com.jnngl.vanillaminimaps.map.renderer.encoder.SecondaryMapEncoder;
 import com.jnngl.vanillaminimaps.map.renderer.world.cache.CacheableWorldMinimapRenderer;
@@ -33,16 +34,37 @@ import lombok.ToString;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 @ToString
 @EqualsAndHashCode
 public final class Minimap {
 
+  public static final String PLAYER_MARKER_PREFIX = "tracked_player:";
+
+  /**
+   * Layers that are managed by the plugin itself and can't be added, modified or removed by players.
+   */
+  public static boolean isReservedLayerName(String name) {
+    return "player".equals(name) || "death_point".equals(name) || name.startsWith(PLAYER_MARKER_PREFIX);
+  }
+
+  private static final int HEADER_ROWS = 3;
+
+  private record RenderState(int holderX, int holderZ, int positionX, int positionZ, boolean trackLocation,
+                             boolean keepOnEdge, SecondaryMinimapLayerRenderer renderer) {
+  }
+
   private final Player holder;
   private final MinimapLayer primaryLayer;
   private final LinkedHashMap<String, SecondaryMinimapLayer> secondaryLayers;
   private MinimapScreenPosition screenPosition;
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  private final Map<SecondaryMinimapLayer, RenderState> renderStates = new WeakHashMap<>();
 
   public Minimap(Player holder, MinimapScreenPosition screenPosition, MinimapLayer primaryLayer,
                  LinkedHashMap<String, SecondaryMinimapLayer> secondaryLayers) {
@@ -115,19 +137,44 @@ public final class Minimap {
     provider.packetSender().updateLayer(holder, primaryLayer, 0, 0, 128, 128, layer);
 
     for (SecondaryMinimapLayer secondary : secondaryLayers.values()) {
-      if (secondary.getWorld() != null && !secondary.getWorld().equals(holder.getWorld())) {
-        continue;
-      }
-
-      byte[] secondaryLayer = new byte[128 * 128];
-      if (secondary.getRenderer() != null) {
-        secondary.getRenderer().render(this, secondary, secondaryLayer);
-      } else if (secondary.getBaseLayer().renderer() != null) {
-        secondary.getBaseLayer().renderer().render(this, secondary.getBaseLayer(), secondaryLayer);
-      }
-      SecondaryMapEncoder.encodeSecondaryLayer(this, secondary, secondaryLayer);
-      provider.packetSender().updateLayer(holder, secondary.getBaseLayer(), 0, 0, 128, 128, secondaryLayer);
+      updateSecondaryLayer(provider, secondary);
     }
+  }
+
+  public void updateSecondaryLayer(MinimapProvider provider, SecondaryMinimapLayer secondary) {
+    if (secondary.getWorld() != null && !secondary.getWorld().equals(holder.getWorld())) {
+      return;
+    }
+
+    byte[] secondaryLayer = new byte[128 * 128];
+    if (secondary.getRenderer() != null) {
+      secondary.getRenderer().render(this, secondary, secondaryLayer);
+    } else if (secondary.getBaseLayer().renderer() != null) {
+      secondary.getBaseLayer().renderer().render(this, secondary.getBaseLayer(), secondaryLayer);
+    }
+    SecondaryMapEncoder.encodeSecondaryLayer(this, secondary, secondaryLayer);
+
+    // Icon layers only change when the block positions change, otherwise just the header
+    // (sub-block offset, depth, etc.) has to be resent.
+    RenderState state = null;
+    if (secondary.getRenderer() instanceof MinimapIconRenderer) {
+      Location location = holder.getLocation();
+      state = new RenderState(location.getBlockX(), location.getBlockZ(), secondary.getPositionX(),
+          secondary.getPositionZ(), secondary.isTrackLocation(), secondary.isKeepOnEdge(), secondary.getRenderer());
+      if (state.equals(renderStates.get(secondary))) {
+        provider.packetSender().updateLayer(holder, secondary.getBaseLayer(), 0, 0, 128, HEADER_ROWS,
+            Arrays.copyOf(secondaryLayer, 128 * HEADER_ROWS));
+        return;
+      }
+    }
+
+    if (state != null) {
+      renderStates.put(secondary, state);
+    } else {
+      renderStates.remove(secondary);
+    }
+
+    provider.packetSender().updateLayer(holder, secondary.getBaseLayer(), 0, 0, 128, 128, secondaryLayer);
   }
 
   public void update(MinimapProvider provider) {
@@ -138,6 +185,7 @@ public final class Minimap {
     MinimapPacketSender packetSender = provider.packetSender();
     packetSender.despawnMinimap(this);
     packetSender.spawnMinimap(this);
+    renderStates.clear();
     update(provider, holder.getX(), holder.getZ(), true);
   }
 
