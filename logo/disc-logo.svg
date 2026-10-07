@@ -1,0 +1,117 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Tile (mesmas proporções do ícone Nimbus: quadrado cheio, cantos ~22% do lado) -->
+    <linearGradient id="tileBg" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2A2F45"/>
+      <stop offset="0.55" stop-color="#181C2A"/>
+      <stop offset="1" stop-color="#0D1018"/>
+    </linearGradient>
+    <radialGradient id="tileLight" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(230 140) rotate(50) scale(900 700)">
+      <stop stop-color="#A98BFF" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#A98BFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tileEdge" x1="0" y1="0" x2="0" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.10"/>
+    </linearGradient>
+
+    <!-- Paleta original do disco -->
+    <linearGradient id="outerGrad" x1="72" y1="28.5" x2="210" y2="259.5" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9B5EF9"/>
+      <stop offset="0.469555" stop-color="#9099FE"/>
+      <stop offset="1" stop-color="#71BEF6"/>
+    </linearGradient>
+    <linearGradient id="ringGrad" x1="17" y1="7.5" x2="187.5" y2="234" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9B5EF9"/>
+      <stop offset="0.469555" stop-color="#9099FE"/>
+      <stop offset="1" stop-color="#71BEF6"/>
+    </linearGradient>
+    <linearGradient id="hubGrad" x1="8.5" y1="-1.5" x2="219" y2="232" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9B5EF9"/>
+      <stop offset="0.469555" stop-color="#9099FE"/>
+      <stop offset="1" stop-color="#71BEF6"/>
+    </linearGradient>
+    <linearGradient id="barGrad" x1="37" y1="0.53" x2="235.155" y2="240.986" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9B5EF9"/>
+      <stop offset="0.476963" stop-color="#9099FE"/>
+      <stop offset="1" stop-color="#71BEF6"/>
+    </linearGradient>
+    <!-- Disco escuro com leve profundidade (Fluent) -->
+    <linearGradient id="darkGrad" x1="115.5" y1="1" x2="115.5" y2="232" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3C3C44"/>
+      <stop offset="1" stop-color="#26262C"/>
+    </linearGradient>
+    <!-- Luz de cima (estilo Fluent) -->
+    <linearGradient id="sheen" x1="136" y1="0" x2="136" y2="272" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.35"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="hubLight" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(98 96) rotate(45) scale(60)">
+      <stop stop-color="#FFFFFF" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+
+    <clipPath id="discClip"><circle cx="115.5" cy="116.5" r="115.5"/></clipPath>
+
+    <!-- Glow externo do disco -->
+    <filter id="outerGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+    <!-- Glow neon só nas partes coloridas (ignora o cinza escuro) -->
+    <filter id="neon" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1.6 0 1.6 0 -1.3" result="bright"/>
+      <feGaussianBlur in="bright" stdDeviation="9" result="glow"/>
+      <feComponentTransfer in="glow" result="glowStrong"><feFuncA type="linear" slope="1.3"/></feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="SourceGraphic"/>
+        <feMergeNode in="glowStrong"/>
+        <feMergeNode in="bright"/>
+      </feMerge>
+    </filter>
+    <filter id="innerShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feOffset dy="3"/>
+      <feGaussianBlur stdDeviation="4" result="o"/>
+      <feComposite in="SourceAlpha" in2="o" operator="out" result="inv"/>
+      <feFlood flood-color="#000000" flood-opacity="0.55"/>
+      <feComposite in2="inv" operator="in"/>
+    </filter>
+  </defs>
+
+  <!-- Tile -->
+  <rect width="1024" height="1024" rx="228" fill="url(#tileBg)"/>
+  <rect width="1024" height="1024" rx="228" fill="url(#tileLight)"/>
+  <rect x="2" y="2" width="1020" height="1020" rx="226" stroke="url(#tileEdge)" stroke-width="4"/>
+
+  <!-- Glow e sombra atrás do disco -->
+  <ellipse cx="512" cy="560" rx="330" ry="320" fill="#000000" opacity="0.55" filter="url(#dropShadow)"/>
+  <g transform="translate(158.4 158.4) scale(2.6)" opacity="0.7" filter="url(#outerGlow)">
+    <circle cx="136" cy="136" r="136" fill="url(#outerGrad)"/>
+  </g>
+
+  <!-- Disco (Rectangle 22 + Ellipse 22 + Group 11 alinhados) -->
+  <g transform="translate(158.4 158.4) scale(2.6)">
+    <rect width="272" height="272" rx="136" fill="url(#outerGrad)"/>
+    <rect width="272" height="272" rx="136" fill="url(#sheen)"/>
+
+    <g transform="translate(20.5 19.5)">
+      <circle cx="115.5" cy="116.5" r="115.5" fill="url(#darkGrad)"/>
+      <g clip-path="url(#discClip)">
+        <g filter="url(#neon)">
+          <circle cx="115.5" cy="116.5" r="70.5" fill="url(#darkGrad)" stroke="url(#ringGrad)" stroke-width="54"/>
+          <path d="M81.7184 226.949C107.005 234.684 134.181 233.507 158.704 223.615C183.228 213.724 203.615 195.717 216.459 172.603C229.304 149.488 233.828 122.667 229.276 96.618C224.724 70.5694 211.372 46.8715 191.449 29.4831C171.527 12.0948 146.242 2.06903 119.817 1.0807C93.392 0.0923713 67.4282 8.20133 46.2628 24.0529C25.0974 39.9046 10.0121 62.5388 3.52713 88.1746C-2.95786 113.81 -0.449875 140.895 10.6321 164.904L115.5 116.5L81.7184 226.949Z" fill="url(#darkGrad)"/>
+          <circle cx="115.5" cy="116.5" r="51.5" fill="url(#hubGrad)" stroke="url(#darkGrad)" stroke-width="16"/>
+          <path d="M143 119L143 0" stroke="url(#barGrad)" stroke-width="32"/>
+        </g>
+        <!-- brilho Fluent no centro -->
+        <circle cx="115.5" cy="116.5" r="43.5" fill="url(#hubLight)"/>
+        <rect x="127" y="0" width="32" height="119" fill="url(#sheen)" opacity="0.6"/>
+      </g>
+      <!-- borda interna do disco escuro -->
+      <circle cx="115.5" cy="116.5" r="115.5" fill="#000" filter="url(#innerShadow)"/>
+    </g>
+  </g>
+</svg>
