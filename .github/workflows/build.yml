@@ -15,7 +15,7 @@ jobs:
           java-version: 21
           cache: maven
       - name: Install Paper server (Mojang-mapped)
-        run: ./scripts/install-paper-server.sh 1.21.4
+        run: ./scripts/install-paper-server.sh 1.21.10
       - name: Build
         run: mvn -B package
       - name: Upload artifact

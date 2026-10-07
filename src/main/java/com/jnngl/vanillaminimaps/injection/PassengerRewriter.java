@@ -17,6 +17,7 @@
 
 package com.jnngl.vanillaminimaps.injection;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
@@ -38,23 +39,27 @@ public class PassengerRewriter extends ChannelOutboundHandlerAdapter {
       IntList passengers = this.passengers.get(vehicle);
       if (passengers != null) {
         synchronized (passengers) {
-          FriendlyByteBuf buf = new FriendlyByteBuf(ctx.alloc().ioBuffer());
-          buf.writeVarInt(0x65); // Packet ID
-          buf.writeVarInt(packet.getVehicle()); // Vehicle ID
-          buf.writeVarInt(packet.getPassengers().length + passengers.size()); // Passenger count
-          for (int passenger : packet.getPassengers()) {
-            buf.writeVarInt(passenger);
+          // Rebuild the packet instead of writing raw bytes, so the packet ID always matches the server version.
+          FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+          try {
+            buf.writeVarInt(packet.getVehicle()); // Vehicle ID
+            buf.writeVarInt(packet.getPassengers().length + passengers.size()); // Passenger count
+            for (int passenger : packet.getPassengers()) {
+              buf.writeVarInt(passenger);
+            }
+            for (int passenger : passengers) {
+              buf.writeVarInt(passenger);
+            }
+            ctx.write(ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf), promise);
+          } finally {
+            buf.release();
           }
-          for (int passenger : passengers) {
-            buf.writeVarInt(passenger);
-          }
-          ctx.write(buf);
           return;
         }
       }
     }
 
-    ctx.write(msg);
+    ctx.write(msg, promise);
   }
 
   public Int2ObjectMap<IntList> passengers() {

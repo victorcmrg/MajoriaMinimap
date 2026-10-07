@@ -10,7 +10,7 @@ https://github.com/JNNGL/VanillaMinimaps/assets/45935949/ea7738c9-bd4a-4388-9d65
 
 https://github.com/JNNGL/VanillaMinimaps/assets/45935949/f64aed82-8193-4c3b-9c8f-be32dc3d6fa0
 
-**Supported server version: 1.21**
+**Supported server version: 1.21.10**
 
 ### Features
 
@@ -57,7 +57,7 @@ The project is built with Maven (Java 21). Since it uses server internals (NMS, 
 the Paper server must first be installed into the local Maven repository:
 
 ```sh
-./scripts/install-paper-server.sh 1.21.4   # optionally: ./scripts/install-paper-server.sh 1.21.4 path/to/paper.jar
+./scripts/install-paper-server.sh 1.21.10   # optionally: ./scripts/install-paper-server.sh 1.21.10 path/to/paper.jar
 mvn package
 ```
 

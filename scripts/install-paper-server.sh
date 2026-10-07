@@ -8,10 +8,21 @@
 #   If no jar is given, the latest build for the version is downloaded from PaperMC.
 set -euo pipefail
 
-MC_VERSION="${1:-1.21.4}"
+MC_VERSION="${1:-1.21.10}"
 PAPER_JAR="${2:-}"
 ARTIFACT_VERSION="${MC_VERSION}-R0.1-SNAPSHOT"
 MVN="${MVN:-mvn}"
+
+# On Windows "python3" may be a Microsoft Store stub that exists but doesn't run.
+if [[ -z "${PYTHON:-}" ]]; then
+  for candidate in python3 python; do
+    if "$candidate" -c 'pass' >/dev/null 2>&1; then
+      PYTHON="$candidate"
+      break
+    fi
+  done
+fi
+PYTHON="${PYTHON:-python3}"
 
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
@@ -20,7 +31,7 @@ if [[ -z "$PAPER_JAR" ]]; then
   echo "Resolving latest Paper build for $MC_VERSION..."
   URL="$(curl -fsSL -H 'User-Agent: vanillaminimaps-build' \
     "https://fill.papermc.io/v3/projects/paper/versions/${MC_VERSION}/builds/latest" \
-    | python3 -c 'import json,sys; print(json.load(sys.stdin)["downloads"]["server:default"]["url"])')"
+    | "$PYTHON" -c 'import json,sys; print(json.load(sys.stdin)["downloads"]["server:default"]["url"])')"
   echo "Downloading $URL"
   PAPER_JAR="$WORK_DIR/paperclip.jar"
   curl -fsSL -H 'User-Agent: vanillaminimaps-build' -o "$PAPER_JAR" "$URL"

@@ -23,6 +23,8 @@ import com.jnngl.vanillaminimaps.clientside.EntityHandle;
 import com.jnngl.vanillaminimaps.injection.PassengerRewriter;
 import com.jnngl.vanillaminimaps.map.MinimapLayer;
 import java.util.Set;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -38,8 +40,25 @@ import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
+import java.util.function.Predicate;
 
 public class NMSMinimapPacketSender extends AbstractMinimapPacketSender {
+
+  // Clientside entities are never tracked by the server, so there is nobody to broadcast to.
+  static final ServerEntity.Synchronizer NO_OP_SYNCHRONIZER = new ServerEntity.Synchronizer() {
+    @Override
+    public void sendToTrackingPlayers(Packet<? super ClientGamePacketListener> packet) {
+    }
+
+    @Override
+    public void sendToTrackingPlayersAndSelf(Packet<? super ClientGamePacketListener> packet) {
+    }
+
+    @Override
+    public void sendToTrackingPlayersFiltered(Packet<? super ClientGamePacketListener> packet,
+                                              Predicate<ServerPlayer> filter) {
+    }
+  };
 
   private final VanillaMinimaps plugin;
 
@@ -57,7 +76,7 @@ public class NMSMinimapPacketSender extends AbstractMinimapPacketSender {
   private void spawnItemFrame(ServerPlayerConnection connection, ItemFrame itemFrame, double offsetY) {
     ServerPlayer player = connection.getPlayer();
     itemFrame.setPos(player.getX(), player.getY() + offsetY, player.getZ());
-    connection.send(itemFrame.getAddEntityPacket(new ServerEntity((ServerLevel) itemFrame.level(), itemFrame, 0, false, p -> {}, Set.of())));
+    connection.send(itemFrame.getAddEntityPacket(new ServerEntity((ServerLevel) itemFrame.level(), itemFrame, 0, false, NO_OP_SYNCHRONIZER, Set.of())));
     var metadata = itemFrame.getEntityData().getNonDefaultValues();
     if (metadata != null && !metadata.isEmpty()) {
       connection.send(new ClientboundSetEntityDataPacket(itemFrame.getId(), metadata));

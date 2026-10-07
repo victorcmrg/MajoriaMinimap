@@ -17,7 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <minecraft.version>1.21.4</minecraft.version>
+        <minecraft.version>1.21.10</minecraft.version>
         <paper.version>${minecraft.version}-R0.1-SNAPSHOT</paper.version>
         <lombok.version>1.18.30</lombok.version>
     </properties>
@@ -48,6 +48,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>26.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
@@ -73,6 +80,8 @@
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.45.0.0</version>
+            <!-- Bundled with the Paper server -->
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -164,13 +173,6 @@
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
                                     </excludes>
-                                </filter>
-                                <filter>
-                                    <!-- JDBC driver is loaded reflectively; keep it whole despite minimizeJar -->
-                                    <artifact>org.xerial:sqlite-jdbc</artifact>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
                                 </filter>
                             </filters>
                             <transformers>
