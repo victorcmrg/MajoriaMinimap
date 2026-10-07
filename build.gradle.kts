@@ -56,7 +56,3 @@ tasks {
         }
     }
 }
-
-tasks.named("build") {
-    finalizedBy("shadowJar")
-}
