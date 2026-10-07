@@ -51,6 +51,18 @@ https://github.com/JNNGL/VanillaMinimaps/assets/45935949/f64aed82-8193-4c3b-9c8f
 > and [Issues](https://github.com/JNNGL/VanillaMinimaps/issues). If you haven't found any information for a mod 
 > that breaks the minimap, feel free to open an issue.
 
+### Building
+
+The project is built with Maven (Java 21). Since it uses server internals (NMS, Mojang mappings),
+the Paper server must first be installed into the local Maven repository:
+
+```sh
+./scripts/install-paper-server.sh 1.21.4   # optionally: ./scripts/install-paper-server.sh 1.21.4 path/to/paper.jar
+mvn package
+```
+
+The plugin jar is written to `target/vanillaminimaps-<version>.jar`.
+
 ### Credits
 
 - **Godlander's map colors**: [*Link*](https://github.com/Godlander/vpp/blob/main/assets/minecraft/shaders/core/render/text.fsh) (Used in this plugin to significantly improve the look of minimaps by tweaking map colors)
